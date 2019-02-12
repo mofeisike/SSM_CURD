@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+
+    <settings>
+        <setting name="mapUnderscoreToCamelCase" value="true"/>
+    </settings>
+
+    <typeAliases>
+        <package name="com.mofei.pojo"/>
+    </typeAliases>
+
+
+
+
+    <property name="typeAliasesPackage" value="com.mofei.pojo" />
+    <!--添加数据源-->
+    <property name="dataSource" ref="dataSource"/>
+    <!--引入mappers文件-->
+    <!--<property name="configLocation"value="classpath:mybatis-config.xml"></property>-->
+    <!--这就要求所有的mapper文件必须在com/mofei/mapper/之下-->
+    <property name="mapperLocations" value="classpath:com/mofei/mapper/**/*.xml"/>
+    <!--可以加入驼峰命名，其它mybatis的配置也就是mybatis.cfg.xm1的相关配置都会转移到这里来-->
+    <property name="configLocation">
+        <bean class="org.apache.ibatis.session.Configuration">
+            <property name="mapUnderscoreToCamelCase"/>
+            <!--user_name 变成 userName-->
+            <!--缓存,日志,其他的配置-->
+        </bean>
+    </property>
+
+    <!--插件配置-->
+    <property name="plugins">
+        <array>
+
+            <!--分页插件的配置,拦截器实现的分页功能-->
+            <bean class="com.github.pagehelper.PageInterceptor">
+                <!--这里的几个配置主要演示如何使用，如果不理解，一定要去掉下面的配置-->
+                <property name="properties">
+                    <!--使用下面的方式配置参数，一行配置一个 -->
+                    <value>
+                        <!--指定使用什么数据库-->
+                        helperDialect=mysql
+                        reasonable=true
+                        supportMethodsArguments=true
+                        params=count=countSql
+                        autoRuntimeDialect=true
+                    </value>
+                </property>
+            </bean>
+        </array>
+    </property>
+
+</configuration>

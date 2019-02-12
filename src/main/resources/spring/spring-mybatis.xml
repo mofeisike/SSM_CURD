@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="
+     http://www.springframework.org/schema/context
+     http://www.springframework.org/schema/context/spring-context-3.0.xsd
+     http://www.springframework.org/schema/beans
+     http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+     http://www.springframework.org/schema/jdbc
+     http://www.springframework.org/schema/jdbc/spring-jdbc-3.0.xsd
+     http://www.springframework.org/schema/tx
+     http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+     http://www.springframework.org/schema/aop
+     http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+     http://www.springframework.org/schema/mvc
+     http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+
+
+    <!--扫描业务逻辑的组件-->
+    <context:component-scan base-package="com.mofei">
+        <!--除了Controller以外的都扫描-->
+        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+    </context:component-scan>
+
+
+    <!--===================================数据源========================================-->
+
+    <!--扫描jdbc.properties-->
+    <context:property-placeholder location="classpath:jdbc.properties" />
+
+    <!--连接池-->
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource">
+        <!-- 基本属性 url、user、password -->
+        <property name="url" value="${jdbc.url}" />
+        <property name="username" value="${jdbc.username}" />
+        <property name="password" value="${jdbc.password}" />
+        <property name="driverClassName" value="${jdbc.driver}" />
+        <!-- 配置初始化大小、最小、最大 -->
+        <property name="initialSize" value="3" />
+        <property name="minIdle" value="3" />
+        <property name="maxActive" value="20" />
+        <!-- 配置获取连接等待超时的时间 -->
+        <property name="maxWait" value="60000" />
+        <!-- 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒 -->
+        <property name="timeBetweenEvictionRunsMillis" value="60000" />
+        <!-- 配置一个连接在池中最小生存的时间，单位是毫秒 -->
+        <property name="minEvictableIdleTimeMillis" value="300000" />
+        <property name="validationQuery" value="SELECT 1" />
+        <property name="testWhileIdle" value="true" />
+        <property name="testOnBorrow" value="false" />
+        <property name="testOnReturn" value="false" />
+        <!-- 打开PSCache，并且指定每个连接上PSCache的大小 -->
+        <property name="poolPreparedStatements" value="true" />
+        <property name="maxPoolPreparedStatementPerConnectionSize" value="20" />
+    </bean>
+
+    <!--c3p0的配置-->
+    <!--<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+        <property name="driverClass" value= "${jdbc.driver}"/>
+        <property name="jdbcUrl" value= "${jdbc.url}"/>
+        <property name="user" value= "${jdbc.username}"/>
+        <property name="password" value= "${jdbc.password}"/>
+        &lt;!&ndash;如果有需要，请把所有的属性全部写到properties文件当中去&ndash;&gt;
+        &lt;!&ndash; -c3p0连接池的私有属性&ndash;&gt;
+        <property name="maxPoolSize" value="30"/><property name="minPoolSize" value="10"/>
+        &lt;!&ndash;关闭连接后不自动commit&ndash;&gt;
+        <property name="autoCommitOnClose" value="false"/>
+        &lt;!&ndash;获取连接超时时间&ndash;&gt;
+        <property name="checkoutTimeout" value="100000"/>
+        &lt;!&ndash;当获取连接失败重试次数&ndash;&gt;
+        <property name="acquireRetryAttempts" value="2"/>
+    </bean>-->
+
+    <!-- 原始的配置数据源-->
+    <!--<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName">
+            <value>com.mysql.jdbc.Driver</value>
+        </property>
+        <property name="url">
+            <value>jdbc:mysql://localhost:3306/ssm?characterEncoding=UTF-8</value>
+        </property>
+        <property name="username">
+            <value>root</value>
+        </property>
+        <property name="password">
+            <value>123456</value>
+        </property>
+    </bean>-->
+
+
+    <!--==================================整合mybatis==================================-->
+    <bean id="sqlSession" class="org.mybatis.spring.SqlSessionFactoryBean">
+
+        <property name="configLocation" value="classpath:spring/mybatis-config.xml"></property>
+        <!--<property name="typeAliasesPackage" value="com.mofei.pojo" />-->
+        <!--添加数据源-->
+        <property name="dataSource" ref="dataSource"/>
+        <!--这就要求所有的mapper文件必须在com/mofei/mapper/之下-->
+        <property name="mapperLocations" value="classpath:com/mofei/mapper/**/*.xml"/>
+
+        <!--插件配置-->
+        <property name="plugins">
+            <array>
+                <!--分页插件的配置,拦截器实现的分页功能-->
+                <bean class="com.github.pagehelper.PageInterceptor">
+                    <!--这里的几个配置主要演示如何使用，如果不理解，一定要去掉下面的配置-->
+                    <property name="properties">
+                        <!--使用下面的方式配置参数，一行配置一个 -->
+                        <value>
+                            <!--指定使用什么数据库-->
+                            helperDialect=mysql
+                            reasonable=true
+                            supportMethodsArguments=true
+                            params=count=countSql
+                            autoRuntimeDialect=true
+                        </value>
+                    </property>
+                </bean>
+            </array>
+        </property>
+    </bean>
+
+    <!--持续层接口,并将其生命周期纳入Spring的管理,配置扫描器,将mybatis接口的实现加入到ioc容器中-->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <!--在java文件里面的-->
+        <property name="basePackage" value="com.mofei.mapper"/>
+        <!--引用整合mybatis的id,就是上面的那个bean-->
+        <property name="sqlSessionFactoryBeanName" value="sqlSession"/>
+    </bean>
+    <!--==================================整合mybatis==================================-->
+
+
+
+
+    <!--=================================事务控制======================================-->
+    <!--事物管理.使用数据源事务管理类进行管理-->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <!--引用的连接池的id,注入数据源-->
+        <property name="dataSource" ref="dataSource" />
+    </bean>
+
+    <!--启动注解的业务,使用xml的方式-->
+    <aop:config>
+        <!--任意包下面的Service下面的任意层包下面的任意类的任意方法-->
+        <!--添加一个事务,id:serviceMethod-->
+        <!--切入点表达式-->
+        <aop:pointcut id="serviceMethod" expression="execution(* com.mofei.service..*.*(..))"/>
+        <!--引用id:serviceMethod , 这个切点的建议,可以用txadvice来使用-->
+        <aop:advisor pointcut-ref="serviceMethod" advice-ref="txadvice"/>
+    </aop:config>
+
+    <!--确定事务管理的策略,配置事务如何切入-->
+    <tx:advice id="txadvice" transaction-manager="transactionManager">
+        <!--事务处理的相关值以及它的传播性-->
+        <tx:attributes><!--建议们-->
+            <!--查询相关配置为只读select开头或者get 或者query-->
+            <tx:method name="select*" read-only="true"/>
+            <tx:method name="get*" read-only="true"/>
+            <tx:method name="query*" read-only="true"/>
+            <!--read-only="true":只读,rollback-for="Exception"  :回滚事物 -->
+            <tx:method name="add*" propagation="REQUIRED" rollback-for="Exception" />
+            <tx:method name="del*" propagation="REQUIRED" rollback-for="Exception"/>
+            <tx:method name="edit*" propagation="REQUIRED" rollback-for="Exception" />
+            <tx:method name="update*" propagation="REQUIRED" rollback-for="Exception"/>
+            <tx:method name="list*" propagation="REQUIRED" rollback-for="Exception"/>
+        </tx:attributes>
+    </tx:advice>
+
+    <!--采用注解进行事务配置，请在Service的实现类上面加上@Transanctional注解-->
+    <!--<tx:annotation-driven transaction-manager="transactionManager"/>-->
+
+</beans>
