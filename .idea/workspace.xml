@@ -119,8 +119,18 @@
       <file leaf-file-name="Category.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/java/com/mofei/pojo/Category.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="558">
-              <caret line="39" column="0" lean-forward="false" selection-start-line="39" selection-start-column="0" selection-end-line="39" selection-end-column="0" />
+            <state relative-caret-position="369">
+              <caret line="39" column="13" lean-forward="true" selection-start-line="39" selection-start-column="13" selection-end-line="39" selection-end-column="13" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="CategoryMapper.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/com/mofei/mapper/CategoryMapper.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="135">
+              <caret line="8" column="17" lean-forward="false" selection-start-line="8" selection-start-column="17" selection-end-line="8" selection-end-column="17" />
               <folding />
             </state>
           </provider>
@@ -141,16 +151,6 @@
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="1107">
               <caret line="41" column="0" lean-forward="false" selection-start-line="41" selection-start-column="0" selection-end-line="41" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="jdbc.properties" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/resources/jdbc.properties">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="27">
-              <caret line="1" column="65" lean-forward="false" selection-start-line="1" selection-start-column="65" selection-end-line="1" selection-end-column="65" />
               <folding />
             </state>
           </provider>
@@ -677,12 +677,12 @@
       <workItem from="1549866609703" duration="5080000" />
       <workItem from="1549878422306" duration="10890000" />
       <workItem from="1549954524431" duration="693000" />
-      <workItem from="1549955278872" duration="833000" />
+      <workItem from="1549955278872" duration="1106000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="17496000" />
+    <option name="totallyTimeSpent" value="17769000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -889,14 +889,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/mofei/mapper/CategoryMapper.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="91">
-          <caret line="7" column="0" lean-forward="false" selection-start-line="7" selection-start-column="0" selection-end-line="7" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/com/mofei/service/serviceimpl/CategoryServiceimpl.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="766">
@@ -1029,10 +1021,18 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/mofei/mapper/CategoryMapper.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="135">
+          <caret line="8" column="17" lean-forward="false" selection-start-line="8" selection-start-column="17" selection-end-line="8" selection-end-column="17" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/com/mofei/pojo/Category.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="558">
-          <caret line="39" column="0" lean-forward="false" selection-start-line="39" selection-start-column="0" selection-end-line="39" selection-end-column="0" />
+        <state relative-caret-position="369">
+          <caret line="39" column="13" lean-forward="true" selection-start-line="39" selection-start-column="13" selection-end-line="39" selection-end-column="13" />
           <folding />
         </state>
       </provider>

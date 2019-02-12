@@ -37,5 +37,13 @@ public class Category implements Serializable {
 
     public String getName(){return this.name;}
 
+    @Override
+    public String toString() {
+        return "Category{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", createDate=" + createDate +
+                '}';
+    }
 
 }
