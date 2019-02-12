@@ -46,9 +46,5 @@ public class Category implements Serializable {
                 '}';
     }
 
-    public Category(Integer id, String name, Date createDate) {
-        this.id = id;
-        this.name = name;
-        this.createDate = createDate;
-    }
+
 }
