@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mofei.mapper.DepartmentMapper">
+
+  <resultMap id="BaseResultMap" type="com.mofei.pojo.Department">
+    <id column="dept_id" jdbcType="INTEGER" property="deptId" />
+    <result column="dept_name" jdbcType="VARCHAR" property="deptName" />
+  </resultMap>
+  <!--条件拼装语句-->
+  <sql id="Example_Where_Clause">
+    <where>
+      /*里面有抽取oredCriteria */
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <!--更新条件拼装语句-->
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      /*里面有抽取example.oredCriteria */
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <!--查询字段,表里的所有字段都抽取-->
+  <sql id="Base_Column_List">
+    dept_id, dept_name
+  </sql>
+
+
+  <!--条件查询(内部解释,和条件删除一样,有条件的都是根据Example_Where_Clause , 还有Base_Column_List所有字段)-->
+  <select id="selectByExample" parameterType="com.mofei.pojo.DepartmentExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    /*所有字段*/
+    <include refid="Base_Column_List" />
+    from tnl_dept
+    <if test="_parameter != null">
+      /*包含一个条件,有什么条件就查询*/
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <!--主键查询-->
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from tnl_dept
+    where dept_id = #{deptId,jdbcType=INTEGER}
+  </select>
+
+
+  <!--主键删除-->
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from tnl_dept
+    where dept_id = #{deptId,jdbcType=INTEGER}
+  </delete>
+  <!--条件删除(内部解释)-->
+  <delete id="deleteByExample" parameterType="com.mofei.pojo.DepartmentExample">
+    delete from tnl_dept
+    /*包含一个条件*/
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+
+
+  <!--全部插入,id是自增的dept_id),其实不能(内部解释)-->
+  <insert id="insert" parameterType="com.mofei.pojo.Department">
+    insert into tnl_dept (dept_id, dept_name)
+    values (#{deptId,jdbcType=INTEGER}, #{deptName,jdbcType=VARCHAR})
+  </insert>
+  <!--有选择的插入(内部解释)-->
+  <insert id="insertSelective" parameterType="com.mofei.pojo.Department">
+    insert into tnl_dept
+    /*有id,就插入id ,没有id ,就不用插入,其他的一样*/
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="deptId != null">
+        dept_id,
+      </if>
+      <if test="deptName != null">
+        dept_name,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="deptId != null">
+        #{deptId,jdbcType=INTEGER},
+      </if>
+      <if test="deptName != null">
+        #{deptName,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+
+
+
+  <!--条件计数(内部解释,和条件删除一样)-->
+  <select id="countByExample" parameterType="com.mofei.pojo.DepartmentExample" resultType="java.lang.Long">
+    select count(*) from tnl_dept
+    <if test="_parameter != null">
+      /*包含一个条件*/
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+
+
+
+  <!--条件选择的更新(内部解释,Update_By_Example_Where_Clause,是专门的更新的条件,和Example_Where_Clause不一样)-->
+  <update id="updateByExampleSelective" parameterType="map">
+    update tnl_dept
+    <set>
+      <if test="record.deptId != null">
+        dept_id = #{record.deptId,jdbcType=INTEGER},
+      </if>
+      <if test="record.deptName != null">
+        dept_name = #{record.deptName,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      /*包含一个条件 , Update_By_Example_Where_Clause*/
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <!--条件更新,全部字段的更新-->
+  <update id="updateByExample" parameterType="map">
+    update tnl_dept
+    set dept_id = #{record.deptId,jdbcType=INTEGER},
+      dept_name = #{record.deptName,jdbcType=VARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <!--主键更新字段-->
+  <update id="updateByPrimaryKeySelective" parameterType="com.mofei.pojo.Department">
+    update tnl_dept
+    <set>
+      <if test="deptName != null">
+        dept_name = #{deptName,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where dept_id = #{deptId,jdbcType=INTEGER}
+  </update>
+  <!--主键更新全部字段-->
+  <update id="updateByPrimaryKey" parameterType="com.mofei.pojo.Department">
+    update tnl_dept
+    set dept_name = #{deptName,jdbcType=VARCHAR}
+    where dept_id = #{deptId,jdbcType=INTEGER}
+  </update>
+
+
+
+</mapper>

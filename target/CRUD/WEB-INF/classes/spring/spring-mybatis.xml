@@ -22,6 +22,15 @@
      http://www.springframework.org/schema/mvc/spring-mvc.xsd">
 
 
+    <!--扫描业务逻辑的组件-->
+    <context:component-scan base-package="com.mofei">
+        <!--除了Controller以外的都扫描-->
+        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+    </context:component-scan>
+
+
+    <!--===================================数据源========================================-->
+
     <!--扫描jdbc.properties-->
     <context:property-placeholder location="classpath:jdbc.properties" />
 
@@ -50,11 +59,6 @@
         <property name="poolPreparedStatements" value="true" />
         <property name="maxPoolPreparedStatementPerConnectionSize" value="20" />
     </bean>
-
-    <!--扫描-->
-    <context:component-scan base-package="com.mofei">
-        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
-    </context:component-scan>
 
     <!--c3p0的配置-->
     <!--<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
@@ -90,29 +94,26 @@
     </bean>-->
 
 
-
-    <!--扫描存放SQL语句的Category.xml-->
-    <!--最关键一步，如何整合mybatis-->
-    <!--注入一股mybatis的sqlsessionFactory这就是我们所要做的关键步骤2声明式的事务管理-->
+    <!--==================================整合mybatis==================================-->
     <bean id="sqlSession" class="org.mybatis.spring.SqlSessionFactoryBean">
-        <property name="typeAliasesPackage" value="com.mofei.pojo" />
+
+        <property name="configLocation" value="classpath:spring/mybatis-config.xml"></property>
+        <!--<property name="typeAliasesPackage" value="com.mofei.pojo" />-->
         <!--添加数据源-->
         <property name="dataSource" ref="dataSource"/>
-        <!--引入mappers文件-->
         <!--这就要求所有的mapper文件必须在com/mofei/mapper/之下-->
         <property name="mapperLocations" value="classpath:com/mofei/mapper/**/*.xml"/>
 
         <!--插件配置-->
-        <property name="plugins">
+        <!--<property name="plugins">
             <array>
-
-                <!--分页插件的配置,拦截器实现的分页功能-->
+                &lt;!&ndash;分页插件的配置,拦截器实现的分页功能&ndash;&gt;
                 <bean class="com.github.pagehelper.PageInterceptor">
-                    <!--这里的几个配置主要演示如何使用，如果不理解，一定要去掉下面的配置-->
+                    &lt;!&ndash;这里的几个配置主要演示如何使用，如果不理解，一定要去掉下面的配置&ndash;&gt;
                     <property name="properties">
-                        <!--使用下面的方式配置参数，一行配置一个 -->
+                        &lt;!&ndash;使用下面的方式配置参数，一行配置一个 &ndash;&gt;
                         <value>
-                            <!--指定使用什么数据库-->
+                            &lt;!&ndash;指定使用什么数据库&ndash;&gt;
                             helperDialect=mysql
                             reasonable=true
                             supportMethodsArguments=true
@@ -122,23 +123,47 @@
                     </property>
                 </bean>
             </array>
-        </property>
+        </property>-->
+
     </bean>
 
-    <!--持续层接口,扫描Mapper，并将其生命周期纳入Spring的管理-->
+    <!--持续层接口,并将其生命周期纳入Spring的管理,配置扫描器,将mybatis接口的实现加入到ioc容器中-->
     <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <!--在java文件里面的-->
         <property name="basePackage" value="com.mofei.mapper"/>
         <!--引用整合mybatis的id,就是上面的那个bean-->
         <property name="sqlSessionFactoryBeanName" value="sqlSession"/>
     </bean>
 
+    <!--配置批量插入的sqlSession-->
+    <bean id="sessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+        <constructor-arg name="sqlSessionFactory" ref="sqlSession"/>
+        <constructor-arg name="executorType" value="BATCH"/>
+    </bean>
+
+    <!--==================================整合mybatis==================================-->
+
+
+
+
+    <!--=================================事务控制======================================-->
     <!--事物管理.使用数据源事务管理类进行管理-->
     <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
         <!--引用的连接池的id,注入数据源-->
         <property name="dataSource" ref="dataSource" />
     </bean>
 
-    <!--确定事务管理的策略 transaction-manager：指向上面事物管理的transactionManage(id)-->
+    <!--启动注解的业务,使用xml的方式-->
+    <aop:config>
+        <!--任意包下面的Service下面的任意层包下面的任意类的任意方法-->
+        <!--添加一个事务,id:serviceMethod-->
+        <!--切入点表达式-->
+        <aop:pointcut id="serviceMethod" expression="execution(* com.mofei.service..*.*(..))"/>
+        <!--引用id:serviceMethod , 这个切点的建议,可以用txadvice来使用-->
+        <aop:advisor pointcut-ref="serviceMethod" advice-ref="txadvice"/>
+    </aop:config>
+
+    <!--确定事务管理的策略,配置事务如何切入-->
     <tx:advice id="txadvice" transaction-manager="transactionManager">
         <!--事务处理的相关值以及它的传播性-->
         <tx:attributes><!--建议们-->
@@ -156,15 +181,6 @@
     </tx:advice>
 
     <!--采用注解进行事务配置，请在Service的实现类上面加上@Transanctional注解-->
-    <tx:annotation-driven transaction-manager="transactionManager"/>
-
-    <aop:config>
-        <!--任意包下面的Service下面的任意层包下面的任意类的任意方法-->
-        <!--添加一个事务,id:serviceMethod-->
-        <aop:pointcut id="serviceMethod" expression="execution(* com.mofei.service..*.*(..))"/>
-        <!--引用id:serviceMethod , 这个切点的建议,可以用txadvice来使用-->
-        <aop:advisor pointcut-ref="serviceMethod" advice-ref="txadvice"/>
-    </aop:config>
-
+    <!--<tx:annotation-driven transaction-manager="transactionManager"/>-->
 
 </beans>

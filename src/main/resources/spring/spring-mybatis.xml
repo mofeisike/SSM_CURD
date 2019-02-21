@@ -105,15 +105,15 @@
         <property name="mapperLocations" value="classpath:com/mofei/mapper/**/*.xml"/>
 
         <!--插件配置-->
-        <property name="plugins">
+        <!--<property name="plugins">
             <array>
-                <!--分页插件的配置,拦截器实现的分页功能-->
+                &lt;!&ndash;分页插件的配置,拦截器实现的分页功能&ndash;&gt;
                 <bean class="com.github.pagehelper.PageInterceptor">
-                    <!--这里的几个配置主要演示如何使用，如果不理解，一定要去掉下面的配置-->
+                    &lt;!&ndash;这里的几个配置主要演示如何使用，如果不理解，一定要去掉下面的配置&ndash;&gt;
                     <property name="properties">
-                        <!--使用下面的方式配置参数，一行配置一个 -->
+                        &lt;!&ndash;使用下面的方式配置参数，一行配置一个 &ndash;&gt;
                         <value>
-                            <!--指定使用什么数据库-->
+                            &lt;!&ndash;指定使用什么数据库&ndash;&gt;
                             helperDialect=mysql
                             reasonable=true
                             supportMethodsArguments=true
@@ -123,7 +123,8 @@
                     </property>
                 </bean>
             </array>
-        </property>
+        </property>-->
+
     </bean>
 
     <!--持续层接口,并将其生命周期纳入Spring的管理,配置扫描器,将mybatis接口的实现加入到ioc容器中-->
@@ -133,6 +134,13 @@
         <!--引用整合mybatis的id,就是上面的那个bean-->
         <property name="sqlSessionFactoryBeanName" value="sqlSession"/>
     </bean>
+
+    <!--配置批量插入的sqlSession-->
+    <bean id="sessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+        <constructor-arg name="sqlSessionFactory" ref="sqlSession"/>
+        <constructor-arg name="executorType" value="BATCH"/>
+    </bean>
+
     <!--==================================整合mybatis==================================-->
 
 
