@@ -14,8 +14,8 @@
 <body>
 
 <!-- 这是使用一个小技巧,在外部的js中使用el的值可以先把这个值放到隐藏域中,然后通过element获取 -->
-<input type="text" id="APP_PATH" value="${APP_PATH}" />
-<input type="text" id="ctx" value="${ctx}" />
+<input type="hidden" id="APP_PATH" value="${APP_PATH}" />
+<input type="hidden" id="ctx" value="${ctx}" />
 
 <div class="container">
 
