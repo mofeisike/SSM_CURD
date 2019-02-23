@@ -1,6 +1,9 @@
 
 //总记录数,来到最后一页,分页信息里面有赋值
 var totalRecod;
+//当前分页数据(第几页)
+var currenPage;
+
 
 $(function () {
     //去首页
@@ -72,6 +75,8 @@ function build_page_info(result){
             +result.data.pageinfo.total+"数量");
     //总记录数
     totalRecod = result.data.pageinfo.total;
+    //记录当前页
+    currenPage = result.data.pageinfo.pageNum;
 };
 
 //解析分页条
@@ -341,3 +346,81 @@ $("#empinput_add_input").change(function () {
     })
 })
 /*--------------------------------------------------添加js-------------------------------------------------------------*/
+
+
+/*--------------------------------------------------修改js-------------------------------------------------------------*/
+
+//1、我们是按钮创建之前就绑定了click，所以绑定不上。
+//1）、可以在创建按钮的时候绑定。2）、绑定点击.live（）
+//jquery新版没有1ive，使用on进行替代
+
+$(document).on("click",".edit_btn",function () {
+    //1、查出部门信息，并显示部门列表
+    getDepts("#empUpdateModal select");
+
+    //2、查出员工信息，显示员工信息
+    getEmp($(this).attr("edit-id"));
+
+    //3~ 把员工的id传递给模态框的更新按钮
+    $("#emp_update_btn").attr("edit_id",$(this).attr("edit-id"));
+    //弹出
+    $("#empUpdateModal").modal();
+})
+
+function getEmp(id) {
+    $.ajax({
+        url: '/emp/'+id,
+        type: 'get',
+        success: function (result) {
+            console.log(result);
+            var empData = result.data.emp;
+            $("#empName_update_static").text(empData.empName);
+            $("#email_update_input").val(empData.email);
+            $("#empUpdateModal input[name=gender]").val([empData.gender]);
+            $("#empUpdateModal select").val([empData.dId]);
+        }
+    })
+}
+
+$("#emp_update_btn").click(function () {
+
+    var email= $("#email").val();
+    var regEmail = /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;
+    if (regEmail.test(email)) {
+        // alert("error");
+        show_validate_message("#email_update_input", "error", "邮箱格式不正确")
+        return false;
+    } else {
+        // alert("success");
+        show_validate_message("#email_update_input", "success", "")
+    }
+
+    //PUT的方式的修改
+    $.ajax({
+        url: '/emp/'+$(this).attr("edit_id"),
+        type: 'PUT',
+        data: $("#form2").serialize(),
+        success: function (result) {
+
+            $("#empUpdateModal").modal('hide');
+            //回到修改那时的页数
+            toPage(currenPage);
+        }
+    })
+
+
+    /*
+    post的方式修改
+    $.ajax({
+        url: '/emp/'+$(this).attr("edit_id"),
+        type: 'post',
+        data: $("#form2").serialize(),
+        success: function (result) {
+            console.log(result);
+        }
+    })
+    */
+
+})
+
+/*--------------------------------------------------修改js-------------------------------------------------------------*/

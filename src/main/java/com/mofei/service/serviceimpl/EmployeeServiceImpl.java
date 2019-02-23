@@ -5,7 +5,6 @@ import com.mofei.pojo.Employee;
 import com.mofei.pojo.EmployeeExample;
 import com.mofei.pojo.EmployeeExample.Criteria;
 import com.mofei.service.EmployeeService;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -65,9 +64,44 @@ public class EmployeeServiceImpl implements EmployeeService {
      */
     @Override
     public Employee getEmp(Integer id) {
-//        employeeMapper.selectByPrimaryKeyWithDept();
         Employee employee = employeeMapper.selectByPrimaryKey(id);
         return employee;
+    }
+
+    /**
+     * version: 1.0
+     * description:员工更新
+     * @param
+     * @return
+     * date: 2019/2/21 22:39
+     * autor: mofeiske
+     */
+    @Override
+    public void updataEmp(Employee employee) {
+        employeeMapper.updateByPrimaryKeySelective(employee);
+    }
+
+    /**
+     * version: 1.0
+     * description: 员工删除
+     * @param
+     * @return
+     * date: 2019/2/23 14:34
+     * autor: mofeiske
+     */
+    @Override
+    public void deleteEmp(Integer id) {
+        employeeMapper.deleteByPrimaryKey(id);
+    }
+
+    @Override
+    public void deleteBatch(List<Integer> ids) {
+        EmployeeExample example = new EmployeeExample();
+        Criteria criteria = example.createCriteria();
+        criteria.andEmpIdIn(ids);
+        //delete from xxx where emp_id in(1,2,3)
+
+        employeeMapper.deleteByExample(example);
     }
 
 

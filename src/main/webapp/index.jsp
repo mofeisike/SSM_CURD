@@ -1,17 +1,21 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
+    <%
+        pageContext.setAttribute("APP_PATH", request.getContextPath());
+    %>
     <link href="/static/css/bootstrap/3.3.6/bootstrap.css" rel="stylesheet">
 </head>
 <body>
 
+<!-- 这是使用一个小技巧,在外部的js中使用el的值可以先把这个值放到隐藏域中,然后通过element获取 -->
+<input type="text" id="APP_PATH" value="${APP_PATH}" />
+<input type="text" id="ctx" value="${ctx}" />
 
 <div class="container">
 
@@ -19,6 +23,7 @@
     <div class="row">
         <div class="col-xs-12 ">
             <h1><a href="" class="text-primary">SSM_CURD</a></h1>
+
         </div>
     </div>
 
@@ -26,7 +31,7 @@
     <div class="row">
         <div class="col-xs-4  col-xs-offset-8">
             <button type="button" class="btn btn-primary" id="emp_add">新增</button>
-            <button type="button" class="btn btn-danger">删除</button>
+            <button type="button" class="btn btn-danger" id="emp_delete">删除</button>
         </div>
     </div>
 
@@ -36,7 +41,7 @@
             <table class="table table-hover" id="emps_table">
                 <thead>
                     <tr>
-                        <th><input type='checkbox' class='check_item'/></th>
+                        <th><input type='checkbox' id='check_all'/></th>
                         <th>ID</th>
                         <th>empName</th>
                         <th>gender</th>
@@ -121,7 +126,7 @@
             </div>
 
             <div class="modal-footer">
-                <button data-dismiss="modal" class="btn btn-default" type="button" id="emp_close_btn">关闭</button>
+                <button data-dismiss="modal" class="btn btn-default" type="button" id="emp_add_close_btn">关闭</button>
                 <button class="btn btn-primary"  type="button"  id="emp_save_btn">保存</button>
             </div>
 
@@ -130,7 +135,7 @@
 </div>
 
 <%--修改模态框--%>
-<div class="modal fade" id="empAddModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+<div class="modal fade" id="empUpdateModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
     <div class="modal-dialog">
         <div class="modal-content">
 
@@ -144,7 +149,7 @@
 
             <div class="modal-body">
 
-                <form class="form-horizontal" id="form1">
+                <form class="form-horizontal" id="form2">
 
                     <div class="form-group">
                         <label class="col-sm-2 control-label">empName</label>
@@ -189,7 +194,7 @@
             </div>
 
             <div class="modal-footer">
-                <button data-dismiss="modal" class="btn btn-default" type="button" id="emp_close_btn">关闭</button>
+                <button data-dismiss="modal" class="btn btn-default" type="button" id="emp_update_close_btn">关闭</button>
                 <button class="btn btn-primary"  type="button"  id="emp_update_btn">更新</button>
             </div>
 
@@ -207,34 +212,75 @@
     //1、我们是按钮创建之前就绑定了click，所以绑定不上。
     //1）、可以在创建按钮的时候绑定。2）、绑定点击.live（）
     //jquery新版没有1ive，使用on进行替代
-    $(document).on("click",".edit_btn",function () {
 
-        //1、查出部门信息，并显示部门列表
-        //ajax,查出部分信息
-        getDepts("#empAddModal select");
+    //单个删除
+    $(document).on("click",".delete_btn",function () {
 
-        //2、查出员工信息，显示员工信息
-        getEmp($(this).attr("edit-id"));
+        //eq(3) : 匹配一个给定索引值的元素
+        var empName = $(this).parent("tr").find("td").eq(3).text();
+        var empId = $(this).attr("delete-id");
 
-        //弹出
-        $("#empAddModal").modal();
+        //confirm 有确认的alret HTMLDOM
+        if (confirm("确认删除"+empName+"吗?")){
+            //确认，发送ajax请求删除即可
+            $.ajax({
+                url:"/emp/delete/"+empId,
+                type: "delete",
+                success :function (result) {
+                    alert(result.msg);
+                    toPage(currenPage)
+                }
+
+            })
+        }
+
     })
 
-    function getEmp(id) {
-        $.ajax({
-            url: '/emp/'+id,
-            type: 'get',
-            success: function (result) {
-                console.log(result);
-                var empData = result.data.emp;
-                $("#empName_update_static").text(empData.empName);
-                $("#email_update_input").val(empData.email);
-                $("#empAddModal input[name=gender]").val([empData.gender]);
-                $("#empAddModal select").val([empData.dId]);
+    //全选
+    $("#check_all").click(function () {
+        $(".check_item").prop("checked",$(this).prop("checked"))
+    })
 
-            }
+
+    //单选
+    $(document).on("click",".check_item",function () {
+        //判断当前选择中的元素是否当前页数的选择框个
+        var falg = $(".check_item:checked").length == $(".check_item").length;
+        //:checked 匹配所有选中的被选中元素(复选框、单选框等)
+        $("#check_all").prop("checked",falg);
+    })
+
+
+    //点击全部删除，就批量删除
+    $("#emp_delete").click(function () {
+        var empName = "";
+        var del_idstr = "";
+
+        //$(".check_item:checked") 被选中的复选框
+        $.each($(".check_item:checked"),function () {
+            //组装name
+            empName += $(this).parents("tr").find("td").eq(2).text()+",";
+            //组装id字符串
+            del_idstr += $(this).parents("tr").find("td").eq(1).text()+"-";
         })
-    }
+
+        //去除多余的后面的符号
+        empName=empName.substring(0, empName.length-1);
+        del_idstr=del_idstr.substring(0, del_idstr.length-1);
+
+        if (confirm("确认删除"+empName+"吗?")) {
+            $.ajax({
+                url: "/emp/deletes/"+del_idstr,
+                type: "delete",
+                success :function (result) {
+                    alert(result.msg);
+                    toPage(currenPage)
+                }
+
+            })
+        }
+    })
+
 
 </script>
 

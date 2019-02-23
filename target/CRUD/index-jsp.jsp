@@ -13,6 +13,20 @@
 </head>
 <body>
 
+<%
+    pageContext.setAttribute("APP_PATH", request.getContextPath());
+%>
+
+<%--
+
+web路径
+
+不以/开始的相对路径，找资源，以当前资源的路径为基准，经常容易出问题。
+以/开始的相对路径，找资源，以服务器的路径为标准（http://localhost：3306)；需要加上项目名|
+http://localhost：3306/crud
+
+--%>
+
 
 <script src="${ctx}/static/js/jquery/2.0.0/jquery.min.js"></script>
 <script>

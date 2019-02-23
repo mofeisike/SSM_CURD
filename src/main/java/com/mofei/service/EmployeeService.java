@@ -24,4 +24,10 @@ public interface EmployeeService {
 
 
     Employee getEmp(Integer id);
+
+    void updataEmp(Employee employee);
+
+    void deleteEmp(Integer id);
+
+    void deleteBatch(List<Integer> ids);
 }
